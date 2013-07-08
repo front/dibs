@@ -1,7 +1,7 @@
 {
   "name": "dibs",
   "version": "0.0.1",
-  "author": "Frontkom <info@frontkom.no>",
+  "author": "Frontkom <front@front.no>",
   "description": "a simple wrapper for the DIBS Payment Services",
   "contributors": [
     {

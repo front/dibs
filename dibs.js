@@ -1,8 +1,9 @@
 'use strict';
 
 /**
- * package dependencies
+ * A simple wrapper for the [DIBS Payment Services](http://www.dibspayment.com/) API
  */
+
 var Promise = require('mpromise');
 var request = require('request');
 var mac = require('./mac');
@@ -13,10 +14,6 @@ request.defaults({
 });
 
 module.exports = {
-  /**
-   * Sets the requests to test mode
-  */
-  testMode: false,
 
   /**
    * Default HMAC Key to encode the requests
@@ -29,8 +26,8 @@ module.exports = {
   authorizeCardUri: 'https://api.dibspayment.com/merchant/v1/JSON/Transaction/AuthorizeCard',
 
   /**
-   * The service performs the first part of a credit card transaction (the authorisation).
-   * The authorisation includes e.g. credit- and debit-card control and reservation of
+   * This service performs the first part of a credit card transaction (the authorisation).
+   * The authorisation includes credit and debit card control and reservation of
    * the required amount for later capture.
   */
   authorizeCard: function(options, hmacKey, call) {
@@ -45,7 +42,7 @@ module.exports = {
   createTicketUri: 'https://api.dibspayment.com/merchant/v1/JSON/Transaction/CreateTicket',
 
   /**
-   * The service performs a credit- and debit-card check and saves the credit card
+   * This service performs a credit and debit card check and saves the credit card
    * information for recurring payments.
   */
   createTicket: function(options, hmacKey, call) {
@@ -60,8 +57,8 @@ module.exports = {
   authorizeTicketUri: 'https://api.dibspayment.com/merchant/v1/JSON/Transaction/AuthorizeTicket',
 
   /**
-   * Make a recurring payment using a ticket previously created either via the
-   * Payment Window or using the authorizeCard service.
+   * Make a recurring payment using a ticket previously created via the
+   * createTicket service.
   */
   authorizeTicket: function(options, hmacKey, call) {
     var p = new Promise(call);
@@ -76,8 +73,7 @@ module.exports = {
 
   /**
    * The second part of any transaction is the capture process. Usually this take place
-   * at the time of shipping the goods to the customer, and is normally accessed via
-   * the DIBS administration interface.
+   * at the time of shipping the goods to the customer.
   */
   captureTransaction: function(options, hmacKey, call) {
     var p = new Promise(call);
@@ -143,7 +139,7 @@ module.exports = {
     if (this.testMode) {
       options.test = true;
     }
-    if(!hmacKey && !this.hmacKey) {
+    if (!hmacKey && !this.hmacKey) {
       return p.reject(new Error('Merchant\'s hmacKey is required'));
     }
     //Calculate authentication code
@@ -157,9 +153,6 @@ module.exports = {
     }, function(err, res, body) {
       if (err) {
         return p.reject(err);
-      }
-      if(res.statusCode === 423) {
-        // TODO: handle script limits
       }
       try {
         p.fulfill(JSON.parse(body));
