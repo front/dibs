@@ -109,12 +109,18 @@ module.exports = {
   */
   pingSatellite: function () {
     var d = q.defer();
-    request({ uri: this.pingUri }, function(err, res, body) {
+
+    request({
+      uri: this.pingUri,
+      json: true
+    },
+    function(err, res, body) {
       if (err) {
         return d.reject(err);
       }
-      d.resolve(JSON.parse(body));
+      d.resolve(body);
     });
+
     return d.promise;
   },
 
@@ -129,6 +135,7 @@ module.exports = {
     if (!hmacKey && !this.hmacKey) {
       return q.reject(new Error('Merchant\'s hmacKey is required'));
     }
+
     var d = q.defer();
 
     //Calculate authentication code
@@ -138,13 +145,15 @@ module.exports = {
       uri: uri,
       form: {
         request: JSON.stringify(options)
-      }
-    }, function(err, res, body) {
+      },
+      json: true
+    },
+    function(err, res, body) {
       if (err) {
         return d.reject(err);
       }
       try {
-        d.resolve(JSON.parse(body));
+        d.resolve(body);
       }
       catch (err) {
         d.reject(err);
