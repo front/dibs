@@ -9,16 +9,15 @@
       "email": "elio@front.no"
     }
   ],
-  "scripts": {
-  },
-  "main" : "./dibs",
+  "scripts": {},
+  "main": "./dibs",
   "repository": {
     "type": "git",
     "url": "https://github.com/front/dibs.git"
   },
   "dependencies": {
-    "request": "2.21.0",
-    "mpromise": "0.2.2"
+    "q": "^1.4.1",
+    "request": "^2.65.0"
   },
   "devDependencies": {
     "assert": "*",

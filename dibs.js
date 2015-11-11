@@ -3,8 +3,7 @@
 /**
  * A simple wrapper for the [DIBS Payment Services](http://www.dibspayment.com/) API
  */
-
-var Promise = require('mpromise');
+var q = require('q');
 var request = require('request');
 var mac = require('./mac');
 
@@ -30,10 +29,8 @@ module.exports = {
    * The authorisation includes credit and debit card control and reservation of
    * the required amount for later capture.
   */
-  authorizeCard: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.authorizeCardUri, p);
-    return p;
+  authorizeCard: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.authorizeCardUri);
   },
 
   /**
@@ -45,10 +42,8 @@ module.exports = {
    * This service performs a credit and debit card check and saves the credit card
    * information for recurring payments.
   */
-  createTicket: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.createTicketUri, p);
-    return p;
+  createTicket: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.createTicketUri);
   },
 
   /**
@@ -60,10 +55,8 @@ module.exports = {
    * Make a recurring payment using a ticket previously created via the
    * createTicket service.
   */
-  authorizeTicket: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.authorizeTicketUri, p);
-    return p;
+  authorizeTicket: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.authorizeTicketUri);
   },
 
   /**
@@ -75,10 +68,8 @@ module.exports = {
    * The second part of any transaction is the capture process. Usually this take place
    * at the time of shipping the goods to the customer.
   */
-  captureTransaction: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.captureTransactionUri, p);
-    return p;
+  captureTransaction: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.captureTransactionUri);
   },
 
   /**
@@ -91,10 +82,8 @@ module.exports = {
    * supports reversals, the system automatically sends one such along and thereby
    * releasing any reserved amounts.
   */
-  cancelTransaction: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.cancelTransactionUri, p);
-    return p;
+  cancelTransaction: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.cancelTransactionUri);
   },
 
   /**
@@ -106,10 +95,8 @@ module.exports = {
    * The refundTransaction service refunds a captured transaction and transfers the money
    * back to the card holders account.
   */
-  refundTransaction: function(options, hmacKey, call) {
-    var p = new Promise(call);
-    this.dibsRequest(options, hmacKey, this.refundTransactionUri, p);
-    return p;
+  refundTransaction: function(options, hmacKey) {
+    return this.dibsRequest(options, hmacKey, this.refundTransactionUri);
   },
 
   /**
@@ -120,28 +107,30 @@ module.exports = {
   /**
    * The ping service checks if satellite system is up and running.
   */
-  pingSatellite: function(call) {
-    var p = new Promise(call);
-    request({uri: this.pingUri}, function(err, res, body) {
+  pingSatellite: function () {
+    var d = q.defer();
+    request({ uri: this.pingUri }, function(err, res, body) {
       if (err) {
-        return p.reject(err);
+        return d.reject(err);
       }
-      p.fulfill(JSON.parse(body));
+      d.resolve(JSON.parse(body));
     });
-    return p;
+    return d.promise;
   },
 
   /**
    * Executes the https request to the DIBS server and fulfills the promise
    *  with the response JSON Object
   */
-  dibsRequest: function(options, hmacKey, uri, p) {
+  dibsRequest: function(options, hmacKey, uri) {
     if (this.testMode) {
       options.test = true;
     }
     if (!hmacKey && !this.hmacKey) {
-      return p.reject(new Error('Merchant\'s hmacKey is required'));
+      return q.reject(new Error('Merchant\'s hmacKey is required'));
     }
+    var d = q.defer();
+
     //Calculate authentication code
     options.MAC = mac.calculateMAC(options, hmacKey || this.hmacKey);
     // Post data to DIBS
@@ -152,14 +141,16 @@ module.exports = {
       }
     }, function(err, res, body) {
       if (err) {
-        return p.reject(err);
+        return d.reject(err);
       }
       try {
-        p.fulfill(JSON.parse(body));
+        d.resolve(JSON.parse(body));
       }
       catch (err) {
-        p.reject(err);
+        d.reject(err);
       }
     });
+
+    return d.promise;
   }
 };

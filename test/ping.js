@@ -9,11 +9,15 @@ describe('DIBS', function() {
   describe('pingSatellite()', function() {
     it('should return \'ACCEPT\'', function(done) {
 
-      dibs.pingSatellite(function (err, data) {
-        assert(!err);
+      dibs.pingSatellite()
+      .then(function (data) {
+        assert(data);
         assert(data.status);
         data.status.should.be.equal('ACCEPT');
         done();
+      },
+      function (err) {
+        throw err;
       });
 
     });
@@ -24,9 +28,12 @@ describe('DIBS', function() {
 
       dibs.pingUri = 'https://example/';
 
-      dibs.pingSatellite(function (err, data) {
+      dibs.pingSatellite()
+      .then(function (data) {
+        throw new Error();
+      },
+      function (err) {
         assert(err);
-        assert(!data);
         done();
       });
 
