@@ -2,7 +2,7 @@
   "name": "dibs",
   "version": "0.1.2",
   "author": "Frontkom <front@front.no>",
-  "description": "a simple wrapper for the DIBS Payment Services",
+  "description": "A simple wrapper for the DIBS Payment Services",
   "contributors": [
     {
       "name": "Elio Cro",
@@ -16,14 +16,14 @@
     "url": "https://github.com/front/dibs.git"
   },
   "dependencies": {
-    "q": "^1.4.1",
-    "request": "^2.65.0"
+    "request": "^2.83.0",
+    "request-promise-native": "^1.0.5"
   },
   "devDependencies": {
-    "assert": "*",
-    "should": "*"
+    "assert": "^1.4.1",
+    "should": "^13.1.3"
   },
   "engines": {
-    "node": ">=0.10.6"
+    "node": ">=8.9.0"
   }
 }
